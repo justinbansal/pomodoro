@@ -1,2 +1,1 @@
-# pomodoro
-A Pomodoro Timer 
+# Pomodoro
