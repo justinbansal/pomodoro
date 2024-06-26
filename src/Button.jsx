@@ -1,7 +1,7 @@
-function Button({type}) {
+function Button({type, handleClick}) {
   return (
     <>
-      <button>{type}</button>
+      <button onClick={handleClick}>{type}</button>
     </>
   )
 }
