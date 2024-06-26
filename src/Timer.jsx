@@ -41,7 +41,8 @@ function Timer() {
   }
 
   function handlePause(intervalId) {
-    clearInterval(intervalId);
+    const idToClear = intervalId || timerId;
+    clearInterval(idToClear);
     setTimerId(null);
     setTimer('paused');
   }
@@ -57,9 +58,8 @@ function Timer() {
     <div className="timer">
       <TimeDisplay timeRemaining={time}/>
       <div className="controls">
-        <Button type="start" handleClick={handleStart}/>
-        <Button type="pause" handleClick={handlePause}/>
-        <Button type="reset" handleClick={handleReset}/>
+        {timer === 'paused' || timer === 'reset' ? <Button type="start" handleClick={handleStart} /> : <Button type="pause" handleClick={() => handlePause(null)} />}
+        <Button type="reset" handleClick={handleReset} />
       </div>
     </div>
   )
