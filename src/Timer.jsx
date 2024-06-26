@@ -17,7 +17,7 @@ function Timer() {
 
   function notifyUser() {
     if (!permission) return;
-    new Notification('Timer finished!');
+    new Notification('Timer finished! 🍅');
   }
 
   function handleStart() {
