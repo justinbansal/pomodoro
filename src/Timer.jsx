@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import TimeDisplay from "./TimeDisplay";
 import Button from "./Button";
 
 function Timer() {
@@ -41,7 +42,7 @@ function Timer() {
 
   return (
     <div className="timer">
-      <span>{time}</span>
+      <TimeDisplay timeRemaining={time}/>
       <div className="controls">
         <Button type="start" handleClick={handleStart}/>
         <Button type="pause" handleClick={handlePause}/>
