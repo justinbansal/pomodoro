@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import TimeDisplay from "./TimeDisplay";
 import Button from "./Button";
@@ -7,28 +7,43 @@ function Timer() {
   const [time, setTime] = useState(5);
   const [timer, setTimer] = useState('paused');
   const [timerId, setTimerId] = useState(null);
+  const [permission, setPermission] = useState(false);
 
-  function handleStart() {
-    if (timer === 'running') return;
-    let intervalId = setInterval(() => {
-      setTime(time => {
-        if (time > 0) {
-          return time - 1;
-        } else {
-          handlePause();
-          return time;
-        }
-      })
-    }, 1000)
+  useEffect(() => {
+    Notification.requestPermission().then(result => {
+      result === 'granted' ? setPermission(true) : setPermission(false);
+    })
+  }, [permission])
 
-    setTimer('running');
-    setTimerId(intervalId);
+  function notifyUser() {
+    if (!permission) return;
+    new Notification('Timer finished!');
   }
 
-  function handlePause() {
-    setTimer('paused');
-    clearInterval(timerId);
+  function handleStart() {
+    if (timer === 'running' || time === 0) return;
+
+    if (timerId === null) {
+      const intervalId = setInterval(() => {
+        setTime(time => {
+          if (time > 0) {
+            return time - 1;
+          } else {
+            handlePause(intervalId);
+            notifyUser();
+            return time;
+          }
+        })
+      }, 1000);
+      setTimerId(intervalId);
+      setTimer('running');
+    }
+  }
+
+  function handlePause(intervalId) {
+    clearInterval(intervalId);
     setTimerId(null);
+    setTimer('paused');
   }
 
   function handleReset() {
