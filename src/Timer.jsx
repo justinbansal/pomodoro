@@ -4,40 +4,38 @@ import TimeDisplay from "./TimeDisplay";
 import Button from "./Button";
 
 function Timer() {
-  const [time, setTime] = useState(25);
+  const [time, setTime] = useState(5);
   const [timer, setTimer] = useState('paused');
   const [timerId, setTimerId] = useState(null);
 
   function handleStart() {
     if (timer === 'running') return;
-    let timerId = setInterval(() => {
+    let intervalId = setInterval(() => {
       setTime(time => {
         if (time > 0) {
           return time - 1;
+        } else {
+          handlePause();
+          return time;
         }
       })
     }, 1000)
 
     setTimer('running');
-    setTimerId(timerId);
+    setTimerId(intervalId);
   }
 
   function handlePause() {
     setTimer('paused');
-
     clearInterval(timerId);
-
     setTimerId(null);
   }
 
   function handleReset() {
     setTimer('reset');
-
     clearInterval(timerId);
-
     setTimerId(null);
-
-    setTime(25);
+    setTime(5);
   }
 
   return (

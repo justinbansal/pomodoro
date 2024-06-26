@@ -1,7 +1,14 @@
+import styled from "styled-components";
+
 function TimeDisplay({timeRemaining}) {
+  if (timeRemaining === undefined) return;
+  const minutes = Math.floor(timeRemaining / 60);
+  const seconds = timeRemaining - minutes * 60;
+  const formattedSeconds = seconds.toString().padStart(2, 0);
+
   return (
     <>
-      <span>{timeRemaining}</span>
+      <span>{minutes}:{formattedSeconds}</span>
     </>
   )
 }
