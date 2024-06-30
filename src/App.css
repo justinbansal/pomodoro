@@ -76,3 +76,18 @@ button:active {
     flex-direction: column;
   }
 }
+
+.modal {
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 5rem 2rem;
+  border-radius: 10px;
+  position: fixed;
+  width: 100%;
+  max-width: 700px;
+  pointer-events: all;
+}
+
+.modal-text {
+  margin-bottom: 1rem;
+}
