@@ -13,6 +13,7 @@ function App() {
   const [timerId, setTimerId] = useState(null);
 
   useEffect(() => {
+    navigator.serviceWorker.register("sw.js");
     const userVisited = JSON.parse(localStorage.getItem('visited'));
     const userPermission = JSON.parse(localStorage.getItem('permission'));
 
@@ -27,7 +28,15 @@ function App() {
 
   function notifyUser() {
     if (!permission) return;
-    new Notification('Timer finished! 🍅');
+    // Notification not supported on Chrome on Android
+    //new Notification('Timer finished! 🍅');
+
+    navigator.serviceWorker.ready.then((registration) => {
+      registration.showNotification("Timer finished! 🍅", {
+        body: `Your ${time} minute timer is up. Way to stay focused.`,
+        vibrate: [200, 100, 200, 100, 200, 100, 200],
+      });
+    });
   }
 
   function handleStart() {
