@@ -1,5 +1,3 @@
-import styled from "styled-components";
-
 function TimeDisplay({timeRemaining}) {
   const minutes = Math.floor(timeRemaining / 60);
   const seconds = timeRemaining - minutes * 60;
