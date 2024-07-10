@@ -14,8 +14,6 @@ function timerReducer(state = initialState, action) {
       return { time: 5, timer: 'reset', timerId: null };
   } else if (action.type === 'update') {
     return { ...state, time: time - 1, timerId: action.intervalId };
-  } else if (action.type === 'ended') {
-    return { ...state, timer: 'paused', timerId: null }
   } else {
     throw Error(`Unknown action: ${action.type}`);
   }
