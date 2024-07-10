@@ -1,16 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useReducer, useEffect } from 'react';
 
+import timerReducer, { initialState } from './timerReducer';
+import notificationsReducer from './notificationsReducer';
 import './App.css';
 
 import Timer from "./Timer";
 import Modal from "./Modal";
 
 function App() {
-  const [permission, setPermission] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [time, setTime] = useState(5);
-  const [timer, setTimer] = useState('paused');
-  const [timerId, setTimerId] = useState(null);
+  const [notificationsState, notificationsDispatch] = useReducer(notificationsReducer, {
+    permission: false,
+    showModal: false,
+  });
+  const [timerState, timerDispatch] = useReducer(timerReducer, initialState);
 
   useEffect(() => {
     navigator.serviceWorker.register("sw.js");
@@ -18,82 +20,80 @@ function App() {
     const userPermission = JSON.parse(localStorage.getItem('permission'));
 
     if (userVisited && userPermission) {
-      setShowModal(false);
-      setPermission(true);
+      notificationsDispatch({ type: 'accepted'});
     } else {
-      setShowModal(true);
-      setPermission(false);
+      notificationsDispatch({ type: 'rejected'});
     }
   }, [])
 
+  useEffect(() => {
+    if (timerState.timer === 'running') {
+      const intervalId = setInterval(() => updateTime(intervalId), 1000);
+
+      if (timerState.time === 0) {
+        handlePause();
+        notifyUser();
+      }
+
+      return () => clearInterval(intervalId);
+    }
+  })
+
   function notifyUser() {
-    if (!permission) return;
+    if (!notificationsState.permission) return;
     // Notification not supported on Chrome on Android
     //new Notification('Timer finished! 🍅');
 
     navigator.serviceWorker.ready.then((registration) => {
       registration.showNotification("Timer finished! 🍅", {
-        body: `Your ${time} minute timer is up. Way to stay focused.`,
+        body: `Your ${timerState.time} minute timer is up. Way to stay focused.`,
         vibrate: [200, 100, 200, 100, 200, 100, 200],
       });
     });
   }
 
   function handleStart() {
-    if (timer === 'running' || time === 0) return;
-
-    if (timerId === null) {
-      const intervalId = setInterval(() => {
-        setTime(time => {
-          if (time > 0) {
-            return time - 1;
-          } else {
-            handlePause(intervalId);
-            notifyUser();
-            return time;
-          }
-        })
-      }, 1000);
-      setTimerId(intervalId);
-      setTimer('running');
-    }
+    timerDispatch({
+      type: 'started',
+    });
   }
 
-  function handlePause(intervalId) {
-    const idToClear = intervalId || timerId;
-    clearInterval(idToClear);
-    setTimerId(null);
-    setTimer('paused');
+  function updateTime(intervalId) {
+    timerDispatch({
+      type: 'update',
+      intervalId
+    })
+  }
+
+  function handlePause() {
+    timerDispatch({
+      type: 'paused'
+    });
   }
 
   function handleReset() {
-    setTimer('reset');
-    clearInterval(timerId);
-    setTimerId(null);
-    setTime(5);
+    timerDispatch({
+      type: 'reset',
+    });
   }
 
   function handleEnableNotifications() {
-    Notification.requestPermission().then(result => {
-      result === 'granted' ? setPermission(true) : setPermission(false);
-      localStorage.setItem('permission', result === 'granted' ? JSON.stringify(true) : localStorage.setItem('permission', JSON.stringify(false)));
-    });
-    localStorage.setItem('visited', JSON.stringify(true));
-    setShowModal(false);
+    notificationsDispatch({
+      type: 'enable'
+    })
   }
 
   function handleDisableNotifications() {
-    setPermission(false);
-    setShowModal(false);
-    localStorage.setItem('visited', JSON.stringify(true));
-    localStorage.setItem('permission', JSON.stringify(false));
+    notificationsDispatch({
+      type: 'disable'
+    })
   }
 
   return (
     <>
       <h1>Pomodoro Timer 🍅</h1>
-      <Timer time={time} timer={timer} handlePause={handlePause} handleReset={handleReset} handleStart={handleStart}/>
-      {showModal ?
+      <Timer time={timerState.time} timer={timerState.timer} handlePause={handlePause} handleReset={handleReset} handleStart={handleStart}/>
+      {notificationsState.showModal ?
         <Modal handleEnableNotifications={handleEnableNotifications} handleDisableNotifications={handleDisableNotifications}/>
       : ''}
     </>
